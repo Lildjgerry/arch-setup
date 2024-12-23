@@ -4,9 +4,9 @@
 set -e
 
 # Define variables
-REPO_URL="https://github.com/your-username/arch-setup.git"
+REPO_URL="https://github.com/Lildjgerry/arch-setup.git"
 INSTALL_DIR="/mnt"
-USER_NAME="your_user"
+USER_NAME="lildjgerry"
 PACKAGES=(
     "base"
     "linux"
