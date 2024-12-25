@@ -4,9 +4,9 @@
 set -e
 
 # Define variables
-REPO_URL="https://github.com/Lildjgerry/arch-setup.git"
+REPO_URL="https://github.com/lildjgerry/arch-setup.git"
 INSTALL_DIR="/mnt"
-USER_NAME="lildjgerry"
+USER_NAME="gerry"
 PACKAGES=(
     "base"
     "linux"
@@ -18,6 +18,7 @@ PACKAGES=(
     "waybar"
     "networkmanager"
     "git"
+    "base-devel"
 )
 
 # Update the system clock
@@ -104,4 +105,5 @@ git clone $REPO_URL $INSTALL_DIR/home/$USER_NAME/setup
 chown -R $USER_NAME:$USER_NAME $INSTALL_DIR/home/$USER_NAME/setup
 
 # Done!
-echo "Base installation is complete. Reboot into your new system."
+exit
+reboot
