@@ -30,14 +30,24 @@ parted $DISK mkpart primary fat32 1MiB 512MiB
 parted $DISK set 1 boot on
 parted $DISK mkpart primary ext4 512MiB 100%
 
+# Detect if the disk is an NVMe device
+if [[ $DISK == *"nvme"* ]]; then
+    PART1="${DISK}p1"
+    PART2="${DISK}p2"
+else
+    PART1="${DISK}1"
+    PART2="${DISK}2"
+fi
+
 # Format the partitions
-mkfs.fat -F32 ${DISK}1
-mkfs.ext4 ${DISK}2
+mkfs.fat -F32 $PART1
+mkfs.ext4 $PART2
 
 # Mount the partitions
-mount ${DISK}2 $INSTALL_DIR
+mount $PART2 $INSTALL_DIR
 mkdir -p $INSTALL_DIR/boot
-mount ${DISK}1 $INSTALL_DIR/boot
+mount $PART1 $INSTALL_DIR/boot
+
 
 # Install the base system
 pacstrap $INSTALL_DIR ${PACKAGES[@]}
