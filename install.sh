@@ -59,6 +59,11 @@ genfstab -U $INSTALL_DIR >> $INSTALL_DIR/etc/fstab
 # Chroot into the new system
 arch-chroot $INSTALL_DIR /bin/bash <<EOF
 
+# Ensure necessary mounts
+mount --bind /proc /proc
+mount --bind /sys /sys
+mount --bind /dev /dev
+
 # Set timezone
 ln -sf /usr/share/zoneinfo/Region/City /etc/localtime
 hwclock --systohc
@@ -87,7 +92,6 @@ while true; do
     fi
 done
 
-
 # Bootloader installation
 pacman -S --noconfirm grub efibootmgr
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
@@ -100,8 +104,11 @@ grub-mkconfig -o /boot/grub/grub.cfg
 useradd -m -G wheel $USER_NAME
 while true; do
     echo "Set password for $USER_NAME:"
-    passwd $USER_NAME && break
-    echo "Passwords did not match or failed. Please try again."
+    if passwd $USER_NAME; then
+        break
+    else
+        echo "Error setting password. Please try again."
+    fi
 done
 
 # Configure sudo
