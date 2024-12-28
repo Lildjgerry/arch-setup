@@ -80,9 +80,13 @@ mkinitcpio -P
 # Set root password
 while true; do
     echo "Set root password:"
-    passwd && break
-    echo "Passwords did not match or failed. Please try again."
+    if passwd; then
+        break
+    else
+        echo "Error setting password. Please try again."
+    fi
 done
+
 
 # Bootloader installation
 pacman -S --noconfirm grub efibootmgr
