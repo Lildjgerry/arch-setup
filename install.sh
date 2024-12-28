@@ -4,9 +4,9 @@
 set -e
 
 # Define variables
-REPO_URL="https://github.com/lildjgerry/arch-setup.git"
+REPO_URL="https://github.com/your-username/arch-setup.git"
 INSTALL_DIR="/mnt"
-USER_NAME="gerry"
+USER_NAME="your_user"
 PACKAGES=(
     "base"
     "linux"
@@ -18,20 +18,16 @@ PACKAGES=(
     "waybar"
     "networkmanager"
     "git"
-    "base-devel"
+    "base-devel" # Added to ensure necessary tools for AUR packages
 )
 
 # Update the system clock
 timedatectl set-ntp true
 
 # Partition the disk
-read -p "Enter disk (e.g., /dev/sda): " DISK
-parted $DISK mklabel gpt
-parted $DISK mkpart primary fat32 1MiB 512MiB
-parted $DISK set 1 boot on
-parted $DISK mkpart primary ext4 512MiB 100%
+read -p "Enter disk (e.g., /dev/sda or /dev/nvme0n1): " DISK
 
-# Detect if the disk is an NVMe device
+# Detect if the disk is NVMe and set partition names accordingly
 if [[ $DISK == *"nvme"* ]]; then
     PART1="${DISK}p1"
     PART2="${DISK}p2"
@@ -39,6 +35,11 @@ else
     PART1="${DISK}1"
     PART2="${DISK}2"
 fi
+
+parted $DISK mklabel gpt
+parted $DISK mkpart primary fat32 1MiB 512MiB
+parted $DISK set 1 boot on
+parted $DISK mkpart primary ext4 512MiB 100%
 
 # Format the partitions
 mkfs.fat -F32 $PART1
@@ -48,7 +49,6 @@ mkfs.ext4 $PART2
 mount $PART2 $INSTALL_DIR
 mkdir -p $INSTALL_DIR/boot
 mount $PART1 $INSTALL_DIR/boot
-
 
 # Install the base system
 pacstrap $INSTALL_DIR ${PACKAGES[@]}
@@ -78,16 +78,27 @@ echo "127.0.1.1 archlinux.localdomain archlinux" >> /etc/hosts
 mkinitcpio -P
 
 # Set root password
-passwd
+while true; do
+    echo "Set root password:"
+    passwd && break
+    echo "Passwords did not match or failed. Please try again."
+done
 
 # Bootloader installation
 pacman -S --noconfirm grub efibootmgr
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
+# Enable os-prober if dual-booting is needed
+#sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
+
 # Create a user
 useradd -m -G wheel $USER_NAME
-passwd $USER_NAME
+while true; do
+    echo "Set password for $USER_NAME:"
+    passwd $USER_NAME && break
+    echo "Passwords did not match or failed. Please try again."
+done
 
 # Configure sudo
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
@@ -105,5 +116,4 @@ git clone $REPO_URL $INSTALL_DIR/home/$USER_NAME/setup
 chown -R $USER_NAME:$USER_NAME $INSTALL_DIR/home/$USER_NAME/setup
 
 # Done!
-exit
-reboot
+echo "Base installation is complete. Reboot into your new system."
