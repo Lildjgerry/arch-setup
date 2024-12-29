@@ -57,12 +57,7 @@ pacstrap $INSTALL_DIR ${PACKAGES[@]}
 genfstab -U $INSTALL_DIR >> $INSTALL_DIR/etc/fstab
 
 # Chroot into the new system
-arch-chroot $INSTALL_DIR /bin/bash <<EOF
-
-# Ensure necessary mounts
-mount --bind /proc /proc
-mount --bind /sys /sys
-mount --bind /dev /dev
+arch-chroot $INSTALL_DIR <<EOF
 
 # Set timezone
 ln -sf /usr/share/zoneinfo/US/Eastern /etc/localtime
@@ -83,7 +78,7 @@ echo "127.0.1.1 archlinux.localdomain archlinux" >> /etc/hosts
 mkinitcpio -P
 
 # Set root password
-passwd root
+passwd
 
 # Bootloader installation
 pacman -S --noconfirm grub efibootmgr
