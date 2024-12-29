@@ -90,14 +90,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 # Create a user
 useradd -m -G wheel $USER_NAME
-while true; do
-    echo "Set password for $USER_NAME:"
-    if passwd $USER_NAME; then
-        break
-    else
-        echo "Error setting password. Please try again."
-    fi
-done
+passwd
 
 # Configure sudo
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
