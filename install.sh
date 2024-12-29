@@ -4,9 +4,9 @@
 set -e
 
 # Define variables
-REPO_URL="https://github.com/your-username/arch-setup.git"
+REPO_URL="https://github.com/lildjgerry/arch-setup.git"
 INSTALL_DIR="/mnt"
-USER_NAME="your_user"
+USER_NAME="gerry"
 PACKAGES=(
     "base"
     "linux"
@@ -65,7 +65,7 @@ mount --bind /sys /sys
 mount --bind /dev /dev
 
 # Set timezone
-ln -sf /usr/share/zoneinfo/Region/City /etc/localtime
+ln -sf /usr/share/zoneinfo/US/Eastern /etc/localtime
 hwclock --systohc
 
 # Localization
@@ -83,7 +83,7 @@ echo "127.0.1.1 archlinux.localdomain archlinux" >> /etc/hosts
 mkinitcpio -P
 
 # Set root password
-passwd roor
+passwd root
 
 # Bootloader installation
 pacman -S --noconfirm grub efibootmgr
