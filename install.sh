@@ -83,14 +83,7 @@ echo "127.0.1.1 archlinux.localdomain archlinux" >> /etc/hosts
 mkinitcpio -P
 
 # Set root password
-while true; do
-    echo "Set root password:"
-    if passwd; then
-        break
-    else
-        echo "Error setting password. Please try again."
-    fi
-done
+passwd roor
 
 # Bootloader installation
 pacman -S --noconfirm grub efibootmgr
