@@ -108,19 +108,31 @@ grub-mkconfig -o /boot/grub/grub.cfg
 useradd -m -G wheel $USER_NAME
 echo '${USER_NAME}:${USER_PASSWORD}' | chpasswd
 
-# Configure sudo
+# Configure sudo without password for the duration of the installation
+echo '%wheel ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel_nopass
+
+# Switch to user and install yay
+su - $USER_NAME -c '
+    cd ~
+    git clone https://aur.archlinux.org/yay.git
+    cd yay
+    makepkg -si --noconfirm
+    cd ..
+    rm -rf yay
+'
+
+# Clone setup repository
+su - $USER_NAME -c '
+    cd ~
+    git clone ${REPO_URL} setup
+'
+
+# Remove the NOPASSWD rule and set normal sudo configuration
+rm /etc/sudoers.d/wheel_nopass
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
 # Enable services
 systemctl enable NetworkManager
-
-# Install yay
-su - $USER_NAME -c 'git clone https://aur.archlinux.org/yay.git /home/$USER_NAME/yay'
-su - $USER_NAME -c 'cd /home/$USER_NAME/yay && makepkg -si --noconfirm'
 "
-
-# Clone setup repository
-git clone $REPO_URL $INSTALL_DIR/home/$USER_NAME/setup
-chown -R $USER_NAME:$USER_NAME $INSTALL_DIR/home/$USER_NAME/setup
 
 echo "Base installation is complete. Reboot into your new system."
